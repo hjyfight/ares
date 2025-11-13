@@ -105,10 +105,14 @@ if __name__ == "__main__":
     trainer = Trainer(attack_cfg, attacker, train_dataloader, test_dataloader, evaluator, logger)
 
     if attack_cfg.attack_mode == 'global':
-        trainer.eval(eval_on_clean=True)
+        metrics = trainer.eval(eval_on_clean=True)
+        if local_rank == 0 and metrics:
+            logger.info(f'Evaluation metrics: {metrics}')
     elif attack_cfg.attack_mode == 'patch':
         if args.eval_only:
             assert attack_cfg.patch.resume_path, 'Adversarial patches path should not be none for eval only mode!'
-            trainer.eval(eval_on_clean=True)
+            metrics = trainer.eval(eval_on_clean=True)
+            if local_rank == 0 and metrics:
+                logger.info(f'Evaluation metrics: {metrics}')
         else:
             trainer.train()
