@@ -70,6 +70,8 @@ class Trainer():
                             self.cfg.adv_image.with_bboxes)
             self.evaluator.process(data_samples=preds)
         metrics = self.evaluator.evaluate(len(self.test_dataloader.dataset))
+        if metrics and self.rank == 0:
+            self.logger.info(f'Attack evaluation results: {metrics}')
         return metrics
 
     def run_epoch(self):
@@ -132,7 +134,9 @@ class Trainer():
             if self.cfg.clean_image.save:
                 save_images(images, preds, clean_image_save_dir,
                             self.cfg.clean_image.with_bboxes)
-        self.evaluator.evaluate(len(self.test_dataloader.dataset))
+        metrics = self.evaluator.evaluate(len(self.test_dataloader.dataset))
+        if metrics and self.rank == 0:
+            self.logger.info(f'Clean data evaluation results: {metrics}')
 
     def before_eval(self):
         """Do something before evaluating."""
